@@ -130,13 +130,13 @@ export default class BasePage {
    */
   async pressDigitsInKeyboard(
     element: Locator,
-    digits: string,
+    keys: string,
     elementName: string
   ) {
     await this.performAction(
       async () => {
         await this.focusElement(element, elementName);
-        await this.pressKeyboardKeys(digits);
+        await this.pressKeyboardKeys(keys);
         await this.blurElement(element, elementName);
       },
       `Digits pressed sequentially in ${elementName}`,
@@ -202,16 +202,29 @@ export default class BasePage {
     );
   }
 
+  async hoverElement(element: Locator, elementName?: string): Promise<void> {
+    await this.performAction(
+      async () => {
+        await element.hover();
+      },
+      `Hovered on ${elementName}`,
+      `Failed to hover on ${elementName}`
+    );
+  }
+
   /**
    * Hover and Click on Element
    * @param element The element locator.
    * @param elementName The name of the element (optional).
    */
-  async hoverAndClick(element: Locator, elementName?: string): Promise<void> {
+  async hoverAndClickElement(
+    element: Locator,
+    elementName?: string
+  ): Promise<void> {
     await this.performAction(
       async () => {
-        await element.hover();
-        await element.click();
+        await this.hoverElement(element, elementName);
+        await this.clickElement(element, elementName);
       },
       `Hovered and clicked on ${elementName}`,
       `Failed to hover and click on ${elementName}`
@@ -284,10 +297,10 @@ export default class BasePage {
           // Wait for fileChooser to be triggered
           const [fileChooser] = await Promise.all([
             this.page.waitForEvent("filechooser"),
-            element.click({ force: true }),
+            this.clickElement(element, elementName),
           ]);
           await fileChooser.setFiles(filePath);
-          await this.page.waitForTimeout(2000); // Wait for processing after upload
+          await this.waitForFullPageReady();
         } else {
           await element.setInputFiles(filePath);
         }
@@ -391,6 +404,7 @@ export default class BasePage {
             return element.inputValue() as unknown as T;
 
           default:
+            logger.error(`Unsupported property type: ${propertyType}`);
             throw new Error(`Unsupported property type: ${propertyType}`);
         }
       },
@@ -439,6 +453,31 @@ export default class BasePage {
   }
 
   /**
+   * Wait for a selector to reach the specified state
+   * @param selector CSS or XPath selector string
+   * @param state The desired state: 'attached', 'detached', 'visible', or 'hidden'
+   * @param elementName The name of the element (optional)
+   * @param timeout Timeout in milliseconds (optional)
+   */
+  async waitForSelectorState(
+    selector: string,
+    state: "attached" | "detached" | "visible" | "hidden",
+    elementName?: string,
+    timeout?: number
+  ): Promise<void> {
+    await this.performAction(
+      async () => {
+        await this.page.waitForSelector(selector, {
+          state,
+          timeout,
+        });
+      },
+      `Selector ${elementName || selector} state transitioned to ${state}`,
+      `Failed waiting for selector ${elementName || selector} to be ${state}`
+    );
+  }
+
+  /**
    * Check if element is currently visible without waiting
    * @param element The element locator.
    * @returns Boolean indicating visibility
@@ -449,30 +488,6 @@ export default class BasePage {
       undefined,
       `Failed to check element visibility`
     );
-  }
-
-  /**
-   * Wait for element to become hidden
-   * @param element The element locator or selector string.
-   * @param elementName The name of the element (optional).
-   */
-  async waitForElementNotVisible(
-    element: Locator | string,
-    elementName?: string
-  ) {
-    // Handle both locator and selector string
-    if (typeof element === "string") {
-      return this.performAction(
-        async () => {
-          await this.page.waitForSelector(element, { state: "hidden" });
-          return true;
-        },
-        `Element ${elementName} is now hidden`,
-        `Error waiting for ${elementName} to be hidden`
-      );
-    } else {
-      return this.waitForElementState(element, "hidden", elementName);
-    }
   }
 
   /**
@@ -554,11 +569,11 @@ export default class BasePage {
    * Take a screenshot of the current page.
    * @returns A promise that resolves with a Buffer containing the screenshot.
    */
-  async takeScreenshot(screenshotName?: string): Promise<Buffer> {
+  async takeScreenshot(screenshotName: string = "unnamed"): Promise<Buffer> {
     return this.performAction(
       () => this.page.screenshot(),
       `Screenshot of ${screenshotName} taken`,
-      `Error taking screenshot`
+      `Error taking screenshot "${screenshotName}"`
     );
   }
 
