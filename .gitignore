@@ -1,0 +1,21 @@
+
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+.auth/
+.vscode/
+/logs/
+/ortoni-report/
+/downloads/
+results.trx
+results.xml
+package-lock.json
+
+# ignore all environment files except for template
+envs/.env
+envs/.env.dev
+envs/.env.uat
+envs/.env.prod

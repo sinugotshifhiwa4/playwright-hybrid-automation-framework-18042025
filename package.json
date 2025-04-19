@@ -1,0 +1,48 @@
+{
+  "name": "playwright-hybrid-automation-framework-18042025",
+  "version": "1.0.0",
+  "description": "Hybrid automation framework with Playwright for UI, API, and database testing",
+  "keywords": [
+    "playwright",
+    "typescript",
+    "ui",
+    "api",
+    "end-to-end",
+    "database",
+    "mssql",
+    "@azure/identity",
+    "dotenv",
+    "cross-env",
+    "crypto-js",
+    "argon2",
+    "encryption",
+    "decryption",
+    "hashing",
+    "eslint",
+    "error-handling",
+    "winston",
+    "logging",
+    "playwright-report",
+    "ortoni-report"
+  ],
+  "license": "ISC",
+  "author": "Tshifhiwa Sinugo",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {},
+  "dependencies": {
+    "argon2": "^0.41.1",
+    "axios": "^1.8.4",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.5.0",
+    "moment-timezone": "^0.5.48",
+    "playwright": "^1.52.0",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.30.1",
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.52.0",
+    "@types/node": "^22.14.1"
+  }
+}
